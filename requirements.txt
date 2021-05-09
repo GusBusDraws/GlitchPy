@@ -1,6 +1,7 @@
 numpy
 matplotlib
 scikit-image
+pandas
 plotly
 jupyter
 napari
