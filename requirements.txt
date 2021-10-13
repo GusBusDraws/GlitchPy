@@ -4,4 +4,4 @@ scikit-image
 pandas
 plotly
 jupyter
-napari
+napari[all]
