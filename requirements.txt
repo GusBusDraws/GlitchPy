@@ -3,5 +3,5 @@ matplotlib
 scikit-image
 pandas
 plotly
-jupyter
+jupyterlab
 napari[all]
