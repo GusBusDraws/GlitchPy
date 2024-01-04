@@ -1,19 +1,62 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import skimage
+from skimage import color, filters, exposure, util
+import view
 
 
 def convert_img(img, img_type, channels):
     if img_type != channels:
         if img_type == 'RGB':
-            img = skimage.color.rgb2hsv(img)
-            img = skimage.util.img_as_ubyte(img)
+            img = color.rgb2hsv(img)
+            img = util.img_as_ubyte(img)
         elif img_type == 'HSV':
-            img = skimage.color.hsv2rgb(img)
-            img = skimage.util.img_as_ubyte(img)
+            img = color.hsv2rgb(img)
+            img = util.img_as_ubyte(img)
         else:
             raise ValueError(f'img_type {img_type} not recognized')
     return img
+
+def game_of_life(grid, on=255, off=0):
+    # copy grid since we require 8 neighbors
+    # for calculation and we go line by line
+    new_grid = np.zeros_like(grid)
+    nrows = grid.shape[0]
+    ncols = grid.shape[1]
+    for i in range(nrows):
+        for j in range(ncols):
+            # Compute 8-neighbor sum using toroidal boundary
+            # conditions: x and y wrap around so simulation takes
+            # place on a toroidal surface (e.g. Pac-Man)
+            # % is modulus; counts across rows as if rotary phone dial
+            n_neighbors = (
+                int(grid[(i-1) % nrows, (j-1) % ncols])
+                + int(grid[(i-1) % nrows, j])
+                + int(grid[(i-1) % nrows, (j+1) % ncols])
+                + int(grid[i, (j-1) % ncols])
+                + int(grid[i, (j+1) % ncols])
+                + int(grid[(i+1) % nrows, (j-1) % ncols])
+                + int(grid[(i+1) % nrows, j])
+                + int(grid[(i+1) % nrows, (j+1) % ncols])
+            ) // 255
+            # Apply Conway's Game of Life rules
+            if grid[i, j]  == on:
+                # 1. Any live cell with fewer than two live neighbours dies,
+                #    as if by underpopulation
+                if n_neighbors < 2:
+                    new_grid[i, j] = off
+                # 2. Any live cell with two or three live neighbours lives on
+                if (n_neighbors == 2) or (n_neighbors == 3):
+                    new_grid[i, j] = on
+                # 3. Any live cell with more than three live neighbours dies,
+                #    as if by overpopulation
+                if n_neighbors > 3:
+                    new_grid[i, j] = off
+            else:
+                # 4. Any dead cell with exactly three live neighbours becomes
+                #    a live cell, as if by reproduction
+                if n_neighbors == 3:
+                    new_grid[i, j] = on
+    return new_grid
 
 def plot_channel(
     img, 
@@ -50,10 +93,10 @@ def plot_hists(
         n_multiotsu = [n_multiotsu] * n_chans
     fig, ax = plt.subplots(**kwargs)
     for i in range(n_chans):
-        hist, bins = skimage.exposure.histogram(img[:, :, i])
+        hist, bins = exposure.histogram(img[:, :, i])
         ax.plot(bins, hist, label=channels[i], color=f'C{i}')
         if n_multiotsu[i] != 0:
-            thresh_vals = skimage.filters.threshold_multiotsu(img[:, :, i], n_multiotsu[i])
+            thresh_vals = filters.threshold_multiotsu(img[:, :, i], n_multiotsu[i])
             print(f'{channels[i].capitalize()}: {thresh_vals}')
             for val in thresh_vals:
                 ax.axvline(val)
