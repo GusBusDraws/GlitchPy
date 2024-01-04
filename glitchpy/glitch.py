@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage import color, filters, exposure, util
-import view
 
 
 def convert_img(img, img_type, channels):
@@ -154,3 +153,41 @@ def plot_masks(
         axes[i + 1].imshow(mask, cmap='gray')
         axes[i + 1].set_axis_off()
     return fig, axes
+
+def posterize_otsu(img, type='binary'):
+    """Posterize image (replace colors with limited palette) by determining
+    Otsu threshold of each channel and replacing value above and below the
+    threshold.
+    ----------
+    Parameters
+    ----------
+    img : np.ndarray
+        3-channel image to be posterized.
+    type : str, optional
+        Type of values to replace. Either 'binary' to replace values below
+        threshold to 0 and above to 255, or 'max' to use the most frequently
+        appearing value below/above the threshold. Defaults to 'binary'.
+    """
+    thresholds = [filters.threshold_otsu(img[..., chan]) for chan in range(3)]
+    print('Thresholds:', thresholds)
+    if type == 'binary':
+        rgb_vals = [[0, 255] for c in range(3)]
+    elif type == 'max':
+        # Determine most frequently occurring values above and below threshold
+        rgb_vals = [[] for c in range(3)]
+        for chan in range(3):
+            thresh = thresholds[chan]
+            hist, bins = np.histogram(img[..., chan], bins=256)
+            rgb_vals[chan].append(np.argmax(hist[:thresh]))
+            rgb_vals[chan].append(thresh + np.argmax(hist[thresh: -1]))
+    else:
+        raise ValueError('type must be "binary" or "max"')
+    print('RGB values:', rgb_vals)
+    img_post = img.copy()
+    print(img_post.shape)
+    for chan in range(3):
+        img_post[img[..., chan] < thresholds[chan], chan] = rgb_vals[chan][0]
+        img_post[img[..., chan] >= thresholds[chan], chan] = rgb_vals[chan][1]
+    print(img_post.shape)
+    return img_post
+
