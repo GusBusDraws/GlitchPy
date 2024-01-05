@@ -1,7 +1,5 @@
 numpy
 matplotlib
-scikit-image
+skimage
 pandas
-plotly
 jupyterlab
-napari[all]
