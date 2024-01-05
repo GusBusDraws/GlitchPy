@@ -3,6 +3,13 @@ import numpy as np
 from skimage import color, filters, exposure, util
 
 
+def add_noise(img, vals, probs, scale=1, mask=None):
+    if mask is None:
+        mask = np.ones_like(img)
+    noise = np.random.choice(vals, size=img.shape, p=probs)
+    img = img + scale * mask * noise
+    return img
+
 def convert_img(img, img_type, channels):
     if img_type != channels:
         if img_type == 'RGB':
