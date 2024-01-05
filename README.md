@@ -1,20 +1,25 @@
 # GlitchPy
-GlitchPy is a project developed by Gus Becker to algorithmically edit photos.
+GlitchPy is a project developed by Gus Becker to procedurally edit photos.
 
-# Project Structure
+## Project Structure
 
 File structure of the project is as follows:
 
 ```
 .
-├── env  # Virtual environment
-├── imgs  # Directory containing your images
-├── nbs  # Directory containing Jupyter notebooks
-│   ├── 01-img-explore.ipynb
-│   └── 
-├── src  # Directory contrianing custom modules
-│   └── 
+├── glitchpy  # Directory contrianing custom modules
+│   ├── __init__.py
+│   ├── glitch.py
+│   └── view.py
 ├── .gitignore
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+└── setup.py
 ```
+
+## Change Log
+### v0.0.2
+2024/01/04
+- Add `glitch.add_noise`
+- Add `glitch.game_of_life`
+
