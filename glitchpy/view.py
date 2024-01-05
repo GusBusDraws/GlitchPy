@@ -7,7 +7,7 @@ def image(
 ):
     nrows = 1
     ncols = 1
-    fig, axes = plt.subplots(nrows, ncols, **kwargs)
+    fig, axes = plt.subplots(nrows, ncols, constrained_layout=True, **kwargs)
     if ncols == 1:
         axes = [axes]
     axes[0].imshow(img)
