@@ -22,54 +22,59 @@ def convert_img(img, img_type, channels):
             raise ValueError(f'img_type {img_type} not recognized')
     return img
 
-def game_of_life(grid, on=255, off=0):
+def game_of_life(grid, on=255, off=0, mask=None):
+    if mask is None:
+        mask = np.ones_like(grid)
+    else:
+        mask = mask.astype(int)
     # copy grid since we require 8 neighbors
     # for calculation and we go line by line
-    # new_grid = np.full_like(grid, off)
     new_grid = grid.copy()
     nrows = grid.shape[0]
     ncols = grid.shape[1]
     for i in range(nrows):
         for j in range(ncols):
-            # Compute 8-neighbor sum using toroidal boundary
-            # conditions: x and y wrap around so simulation takes
-            # place on a toroidal surface (e.g. Pac-Man)
-            # % is modulus; counts across rows as if rotary phone dial
-            neighbors_sum = (
-                int(grid[(i-1) % nrows, (j-1) % ncols])
-                + int(grid[(i-1) % nrows, j])
-                + int(grid[(i-1) % nrows, (j+1) % ncols])
-                + int(grid[i, (j-1) % ncols])
-                + int(grid[i, (j+1) % ncols])
-                + int(grid[(i+1) % nrows, (j-1) % ncols])
-                + int(grid[(i+1) % nrows, j])
-                + int(grid[(i+1) % nrows, (j+1) % ncols])
-            )
-            # Determine number of living neighbors
-            if on != 0:
-                n_live_neighbors = neighbors_sum // on
-            elif off != 0:
-                n_live_neighbors = 8 - neighbors_sum // off
-            else:
-                raise ValueError('on and off cannot both be zero!')
-            # Apply Conway's Game of Life rules
-            if grid[i, j]  == on:
-                # 1. Any live cell with fewer than two live neighbours dies,
-                #    as if by underpopulation
-                if n_live_neighbors < 2:
-                    new_grid[i, j] = off
-                # 2. Any live cell with two or three live neighbours lives on
-                if (n_live_neighbors == 2) or (n_live_neighbors == 3):
-                    new_grid[i, j] = on
-                # 3. Any live cell with more than three live neighbours dies,
-                #    as if by overpopulation
-                if n_live_neighbors > 3:
-                    new_grid[i, j] = off
-            else:
-                # 4. Any dead cell with exactly three live neighbours becomes
-                #    a live cell, as if by reproduction
-                if n_live_neighbors == 3:
-                    new_grid[i, j] = on
+            if mask[i, j] == 1:
+                # Compute 8-neighbor sum using toroidal boundary
+                # conditions: x and y wrap around so simulation takes
+                # place on a toroidal surface (e.g. Pac-Man)
+                # % is modulus; counts across rows as if rotary phone dial
+                neighbors_sum = (
+                    int(grid[(i-1) % nrows, (j-1) % ncols])
+                    + int(grid[(i-1) % nrows, j])
+                    + int(grid[(i-1) % nrows, (j+1) % ncols])
+                    + int(grid[i, (j-1) % ncols])
+                    + int(grid[i, (j+1) % ncols])
+                    + int(grid[(i+1) % nrows, (j-1) % ncols])
+                    + int(grid[(i+1) % nrows, j])
+                    + int(grid[(i+1) % nrows, (j+1) % ncols])
+                )
+                # Determine number of living neighbors
+                if on != 0:
+                    n_live_neighbors = neighbors_sum // on
+                elif off != 0:
+                    n_live_neighbors = 8 - neighbors_sum // off
+                else:
+                    raise ValueError('on and off cannot both be zero!')
+                # Apply Conway's Game of Life rules
+                if grid[i, j]  == on:
+                    # 1. Any live cell with fewer than two live neighbours dies,
+                    #    as if by underpopulation
+                    if n_live_neighbors < 2:
+                        new_grid[i, j] = off
+                    # 2. Any live cell with two or three live neighbours
+                    #    lives on
+                    if (n_live_neighbors == 2) or (n_live_neighbors == 3):
+                        new_grid[i, j] = on
+                    # 3. Any live cell with more than three live neighbours
+                    #    dies, as if by overpopulation
+                    if n_live_neighbors > 3:
+                        new_grid[i, j] = off
+                else:
+                    # 4. Any dead cell with exactly three live neighbours
+                    #    becomes a live cell, as if by reproduction
+                    if n_live_neighbors == 3:
+                        new_grid[i, j] = on
     return new_grid
 
 def plot_channel(
