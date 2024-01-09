@@ -1,14 +1,41 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from skimage import color, filters, exposure, util
+from skimage import color, filters, exposure, morphology, util
 
 
-def add_noise(img, vals, probs, scale=1, mask=None):
+def add_noise(imgs, vals, probs, scale=1, mask=None):
+    """Add noise to a single image, or the same noise to a list of images.
+    ----------
+    Parameters
+    ----------
+    imgs : numpy.ndarray or list of arrays
+        Image or list of images to which noise will be applied
+    vals : iterable
+        Possible values to be added to image(s).
+    probs : iterable
+        Probability that each value in vals will be added to image(s).
+    scale : int, optional
+        Value multiplied to noise before adding to image(s). Can be 1 or -1
+        to determine if noise will be added or subtracted. Defaults to 1
+    mask : numpy.ndarray, optional
+        Mask to apply to noise before adding to image. If None, an array of
+        ones the shape of imgs[0] will be used. Defaults to None.
+    -------
+    Returns
+    -------
+    numpy.ndarray or list of arrays
+        The image or list of images with added noise.
+    """
+    if not isinstance(imgs, list):
+        imgs = [imgs]
     if mask is None:
-        mask = np.ones_like(img)
-    noise = np.random.choice(vals, size=img.shape, p=probs)
-    img = img + scale * mask * noise
-    return img
+        mask = np.ones_like(imgs[0])
+    noise = np.random.choice(vals, size=imgs[0].shape, p=probs)
+    imgs = [img + scale * mask * noise for img in imgs]
+    if len(imgs) == 1:
+        return imgs[0]
+    else:
+        return imgs
 
 def convert_img(img, img_type, channels):
     if img_type != channels:
@@ -211,3 +238,8 @@ def posterize_otsu(img, type='binary'):
     print(img_post.shape)
     return img_post
 
+def prob_dilate(img, val, prob):
+    img_dil = morphology.dilation(img)
+    noise = np.random.choice(val, size=img.shape, p=prob)
+    # img = 
+    return img

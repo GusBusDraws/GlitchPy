@@ -19,7 +19,11 @@ File structure of the project is as follows:
 
 ## Change Log
 ### v0.0.2
+2024/01/09
+- Rewrite `glitch.add_noise` to accept a list of images
+
 2024/01/04
+- Add `glitch.posterize_otsu`
 - Add `glitch.add_noise`
 - Add `glitch.game_of_life`
 
