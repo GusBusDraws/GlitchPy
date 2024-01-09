@@ -1,5 +1,7 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
+import string
 
 def image(
     img,
@@ -12,6 +14,80 @@ def image(
         axes = [axes]
     axes[0].imshow(img)
     axes[0].set_axis_off()
+    return fig, axes
+
+def images(
+    imgs,
+    vmin=None,
+    vmax=None,
+    imgs_per_row=None,
+    fig_w=7.5,
+    subplot_letters=False,
+    dpi=100
+):
+    """Plot images.
+    ----------
+    Parameters
+    ----------
+    imgs : list
+        List of NumPy arrays representing images to be plotted.
+    imgs_per_row : int or None, optional
+        Number of images to plot in each row. Default is None and all images
+        are plotted in the same row.
+    fig_w : float, optional
+        Width of figure in inches, by default 7.5
+    subplot_letters : bool, optional
+        If true, subplot letters printed underneath each image.
+        Defaults to False
+    dpi : float, optional
+        Resolution (dots per inch) of figure. Defaults to 300.
+    -------
+    Returns
+    -------
+    matplotlib.Figure, matplotlib.Axis
+        2-tuple containing matplotlib figure and axes objects
+    """
+    # If single image passed, add it to a list
+    if not isinstance(imgs, list):
+        imgs = [imgs]
+    # If single value passed for vmin or vmax, make a list full of that value
+    if isinstance(vmin, int) or isinstance(vmin, float):
+        vmin = [vmin] * len(imgs)
+    if isinstance(vmax, int) or isinstance(vmax, float):
+        vmax = [vmax] * len(imgs)
+    if vmin == None:
+        vmin = [None for _ in range(len(imgs))]
+    if vmax == None:
+        vmax = [None for _ in range(len(imgs))]
+    n_imgs = len(imgs)
+    img_w = imgs[0].shape[1]
+    img_h = imgs[0].shape[0]
+    if imgs_per_row is None:
+        n_cols = n_imgs
+    else:
+        n_cols = imgs_per_row
+    n_rows = int(math.ceil( n_imgs / n_cols ))
+    fig_h = fig_w * (img_h / img_w) * (n_rows / n_cols)
+    if subplot_letters:
+        fig_h *= (1 + (0.12 * n_rows))
+    fig, axes = plt.subplots(
+        n_rows, n_cols, figsize=(fig_w, fig_h), constrained_layout=True,
+        dpi=dpi, facecolor='white'
+    )
+    if isinstance(axes, np.ndarray):
+        ax = axes.ravel()
+    else:
+        # When only one image, wrap axis object into list to make iterable
+        ax = [axes]
+    for i, img in enumerate(imgs):
+        ax[i].imshow(img, vmin=vmin[i], vmax=vmax[i], interpolation='nearest')
+        if subplot_letters:
+            letter = string.ascii_lowercase[i]
+            ax[i].annotate(
+                f'({letter})', xy=(0.5, -0.05),
+                xycoords='axes fraction', ha='center', va='top', size=12)
+    for a in ax:
+        a.axis('off')
     return fig, axes
 
 def channels(
