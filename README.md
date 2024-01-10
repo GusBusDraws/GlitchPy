@@ -19,6 +19,9 @@ File structure of the project is as follows:
 
 ## Change Log
 ### v0.0.2
+2024/01/10
+- Add `glitch.dilate_with_probability`
+
 2024/01/09
 - Add `view.images` to plot multiple images together
 - Rewrite `glitch.add_noise` to accept a list of images

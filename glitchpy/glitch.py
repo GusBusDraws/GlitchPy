@@ -49,6 +49,20 @@ def convert_img(img, img_type, channels):
             raise ValueError(f'img_type {img_type} not recognized')
     return img
 
+def dilate_with_probability(imgs, vals, probs, mask=None):
+    if not isinstance(imgs, list):
+        imgs = [imgs]
+    if mask is None:
+        mask = np.ones_like(imgs[0])
+    dilated_imgs = [morphology.binary_dilation(mask * img) for img in imgs]
+    # img_next[..., 1] = img_next[..., 1] + green_new
+    noise = np.random.choice(vals, size=imgs[0].shape, p=probs)
+    imgs = [noise * dil for img, dil in zip(imgs, dilated_imgs)]
+    if len(imgs) == 1:
+        return imgs[0]
+    else:
+        return imgs
+
 def game_of_life(grid, on=255, off=0, mask=None):
     if mask is None:
         mask = np.ones_like(grid)
@@ -238,8 +252,3 @@ def posterize_otsu(img, type='binary'):
     print(img_post.shape)
     return img_post
 
-def prob_dilate(img, val, prob):
-    img_dil = morphology.dilation(img)
-    noise = np.random.choice(val, size=img.shape, p=prob)
-    # img = 
-    return img
