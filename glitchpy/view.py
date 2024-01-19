@@ -115,24 +115,35 @@ def histogram(
     return_hist=False
 ):
     colors = ['C3', 'C2', 'C0']
+    if len(img.shape) == 3:
+        nchans = img.shape[2]
+    else:
+        nchans = 1
     if channel_labels == None:
         channel_labels = [0, 1, 2]
     # Compile single values into nested list by channel
     if channel_thresholds is not None:
-        for i in range(3):
-            if not isinstance(channel_thresholds[i], list):
-                channel_thresholds[i] = [channel_thresholds[i]]
+        if nchans > 1:
+            for i in range(nchans):
+                if not isinstance(channel_thresholds[i], list):
+                    channel_thresholds[i] = [channel_thresholds[i]]
+            else:
+                channel_thresholds = [channel_thresholds]
     fig, ax = plt.subplots()
     hist_list = []
     bins_list = []
-    for chan in range(img.shape[-1]):
+    for chan in range(nchans):
         hist, bins = np.histogram(img[..., chan], bins=nbins)
         hist_list.append(hist)
         bins_list.append(bins)
         ax.plot(bins[1:], hist, c=colors[chan], label=channel_labels[chan])
         if channel_thresholds is not None:
-            for thresh in channel_thresholds[chan]:
-                ax.axvline(thresh, c=colors[chan])
+            if nchans > 1:
+                for thresh in channel_thresholds[chan]:
+                    ax.axvline(thresh, c=colors[chan])
+            else:
+                for thresh in channel_thresholds:
+                    ax.axvline(thresh, c=colors[chan])
         ax.legend()
     if return_hist:
         return fig, ax, hist_list, bins_list

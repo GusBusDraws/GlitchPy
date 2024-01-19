@@ -19,6 +19,9 @@ File structure of the project is as follows:
 
 ## Change Log
 ### v0.0.2
+2024/01/19
+- Add `view.histogram_split`
+
 2024/01/10
 - Add `glitch.dilate_with_probability`
 
