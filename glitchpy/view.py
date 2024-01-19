@@ -135,7 +135,7 @@ def histogram(
                 ax.axvline(thresh, c=colors[chan])
         ax.legend()
     if return_hist:
-        return hist_list, bins_list
+        return fig, ax, hist_list, bins_list
     else:
         return fig, ax
 
@@ -167,7 +167,7 @@ def histogram_split(
                 axes[chan].axvline(thresh, c=colors[chan])
         axes[chan].legend()
     if return_hist:
-        return hist_list, bins_list
+        return fig, axes, hist_list, bins_list
     else:
         return fig, axes
 
