@@ -252,3 +252,25 @@ def posterize_otsu(img, type='binary'):
     print(img_post.shape)
     return img_post
 
+def split_hues_by_percentile(img, ncolors):
+    img_hsv = color.rgb2hsv(img)
+    img_hue = img_hsv.copy()
+    img_hue[..., 1] = 1
+    img_hue[..., 2] = 1
+    img_hue = color.hsv2rgb(img_hue)
+    img_hue = util.img_as_ubyte(img_hue)
+    img_hue_hsv = color.rgb2hsv(img_hue)
+    p = [i * 100 / ncolors for i in range(1, ncolors + 1)]
+    thresholds = np.percentile(img_hue_hsv[..., 0], p)
+    print(f'{ncolors} threshold found:')
+    print(thresholds)
+
+def split_classes(img_semantic, nclasses):
+    masks_unique = []
+    for i in range(nclasses):
+        mask = img_semantic == i
+        masks_unique.append(mask)
+    return masks_unique
+
+
+
