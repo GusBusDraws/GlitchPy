@@ -4,6 +4,29 @@ import numpy as np
 from pathlib import Path
 from skimage import filters, exposure, util
 
+def get_colors_by_count(img, ncolors='all'):
+    if ncolors != 'all' and isinstance(ncolors, int):
+        raise ValueError('If not "all", ncolors must be an integer')
+    # This function is based on the following answer:
+    # https://stackoverflow.com/a/30901841/11395993
+    # Lexicographically sort
+    sorted_arr = img[np.lexsort(img.T), :]
+    # Get the indices where a new row appears
+    diff_idx = np.where(np.any(np.diff(sorted_arr, axis=0), 1))[0]
+    # Get the unique rows
+    unique_rows = [sorted_arr[i] for i in diff_idx] + [sorted_arr[-1]]
+    # Get the number of occurences of each unique array (the -1 is needed at
+    # the beginning, rather than 0, because of fencepost concerns)
+    counts = np.diff(
+        np.append(np.insert(diff_idx, 0, -1), sorted_arr.shape[0] - 1))
+    # Return the (row, count) pairs sorted by count
+    colors_by_count = sorted(
+        zip(unique_rows, counts), key=lambda x: x[1], reverse=True)
+    if ncolors == 'all':
+        return colors_by_count
+    else:
+        return colors_by_count[:ncolors]
+
 def isolate_classes(
     img,
     threshold_values,
