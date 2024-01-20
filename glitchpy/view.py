@@ -12,7 +12,7 @@ def image(
     fig, axes = plt.subplots(nrows, ncols, constrained_layout=True, **kwargs)
     if ncols == 1:
         axes = [axes]
-    axes[0].imshow(img)
+    axes[0].imshow(img, interpolation='nearest')
     axes[0].set_axis_off()
     return fig, axes
 
@@ -23,7 +23,7 @@ def images(
     imgs_per_row=None,
     fig_w=7.5,
     subplot_letters=False,
-    dpi=100
+    **kwargs
 ):
     """Plot images.
     ----------
@@ -72,7 +72,7 @@ def images(
         fig_h *= (1 + (0.12 * n_rows))
     fig, axes = plt.subplots(
         n_rows, n_cols, figsize=(fig_w, fig_h), constrained_layout=True,
-        dpi=dpi, facecolor='white'
+        **kwargs
     )
     if isinstance(axes, np.ndarray):
         ax = axes.ravel()
