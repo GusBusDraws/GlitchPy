@@ -182,3 +182,15 @@ def histogram_split(
     else:
         return fig, axes
 
+def swatches(palette, swatch_shape=(50, 50), **kwargs):
+    if swatch_shape[-1] != 3:
+        swatch_shape = (*swatch_shape, 3)
+    swatch_list = []
+    for rgb in palette:
+        swatch = np.zeros(swatch_shape, dtype='ubyte')
+        for chan_i in range(3):
+            swatch[..., chan_i] = rgb[chan_i]
+        swatch_list.append(swatch)
+    fig, axes = images(swatch_list, **kwargs)
+    return fig, axes
+
