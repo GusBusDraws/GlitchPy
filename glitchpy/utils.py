@@ -1,8 +1,10 @@
+import glitch, utils
 import imageio.v3 as iio
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from pathlib import Path
-from skimage import filters, exposure, util
+from skimage import color, filters, exposure, util
 
 def get_colors_by_count(img, ncolors='all'):
     if ncolors != 'all' and isinstance(ncolors, int):
@@ -26,6 +28,49 @@ def get_colors_by_count(img, ncolors='all'):
         return colors_by_count
     else:
         return colors_by_count[:ncolors]
+
+def get_palette_df(img, ncolors, color_downscale=10):
+    # Get hue image
+    img_hsv = color.rgb2hsv(img)
+    img_hue = img_hsv.copy()
+    img_hue[..., 1] = 1
+    img_hue[..., 2] = 1
+    img_hue = color.hsv2rgb(img_hue)
+    img_hue = util.img_as_ubyte(img_hue)
+    img_hue_hsv = color.rgb2hsv(img_hue)
+    # Split hue channel by percentile
+    p = [i * 100 / ncolors for i in range(1, ncolors + 1)]
+    thresholds = np.percentile(img_hue_hsv[..., 0], p)
+    # Segment image according to percentile threshold values
+    img_semantic = utils.isolate_classes(
+        img_hue_hsv[..., 0], threshold_values=thresholds)
+    masks_unique = []
+    for i in range(ncolors):
+        mask = img_semantic == i
+        masks_unique.append(mask)
+    if color_downscale is not None:
+        # Reduce colors in base image by rounding
+        img = glitch.reduce_color_by_rounding(img, color_downscale)
+    # Create dataframe to hold palette info
+    df = pd.DataFrame(
+        columns=['mask_i', 'red', 'green', 'blue', 'counts', 'grey_dist'])
+    # Add common colors within each masked region
+    for mask_i, mask in enumerate(masks_unique):
+        # Count colors in masked image
+        colors_by_count = utils.get_colors_by_count(img[mask])
+        common_colors, counts = zip(*colors_by_count)
+        common_colors = np.array(common_colors)
+        # Add colors to dataframe
+        df_i = pd.DataFrame(data=common_colors, columns=['red', 'green', 'blue'])
+        df_i['mask_i'] = [mask_i] * len(counts)
+        df_i['counts'] = counts
+        df_i['grey_dist'] = (
+            abs(df_i.red - df_i.green)
+            + abs(df_i.green - df_i.blue)
+            + abs(df_i.blue - df_i.red)
+        )
+        df = pd.concat([df, df_i])
+    return df
 
 def isolate_classes(
     img,
