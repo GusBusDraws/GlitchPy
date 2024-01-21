@@ -20,6 +20,9 @@ File structure of the project is as follows:
 ## Change Log
 ### v0.0.2
 2024/01/19
+- Add `glitch.reduce_color_by_rounding`
+
+2024/01/19
 - Add `glitch.split_hues_by_percentile` and `glitch.split_classes`
 - Add `view.get_colors_by_count`
 - Add `utils.save_images`, `utils.threshold_multi_otsu`, and `view.isolate_classes`
