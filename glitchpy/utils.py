@@ -1,10 +1,11 @@
-import glitch, utils
 import imageio.v3 as iio
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from skimage import color, filters, exposure, util
+# Local imports
+import glitch
 
 def get_colors_by_count(img, ncolors='all'):
     if ncolors != 'all' and isinstance(ncolors, int):
@@ -29,6 +30,19 @@ def get_colors_by_count(img, ncolors='all'):
     else:
         return colors_by_count[:ncolors]
 
+def get_palette(img, ncolors, color_downscale=10, min_grey_dist=100):
+    df = get_palette_df(img, ncolors, color_downscale=color_downscale)
+    # Get the most common color within each mask
+    nmasks = df.mask_i.max() + 1
+    palette = []
+    for m_i in range(nmasks):
+        most_common_color = df.loc[
+            (df.mask_i == m_i)
+            & (df.grey_dist >= min_grey_dist),
+        ][['red', 'green', 'blue']].values[0].astype(int)
+        palette.append(most_common_color)
+    return palette
+
 def get_palette_df(img, ncolors, color_downscale=10):
     # Get hue image
     img_hsv = color.rgb2hsv(img)
@@ -42,7 +56,7 @@ def get_palette_df(img, ncolors, color_downscale=10):
     p = [i * 100 / ncolors for i in range(1, ncolors + 1)]
     thresholds = np.percentile(img_hue_hsv[..., 0], p)
     # Segment image according to percentile threshold values
-    img_semantic = utils.isolate_classes(
+    img_semantic = isolate_classes(
         img_hue_hsv[..., 0], threshold_values=thresholds)
     masks_unique = []
     for i in range(ncolors):
@@ -57,7 +71,7 @@ def get_palette_df(img, ncolors, color_downscale=10):
     # Add common colors within each masked region
     for mask_i, mask in enumerate(masks_unique):
         # Count colors in masked image
-        colors_by_count = utils.get_colors_by_count(img[mask])
+        colors_by_count = get_colors_by_count(img[mask])
         common_colors, counts = zip(*colors_by_count)
         common_colors = np.array(common_colors)
         # Add colors to dataframe

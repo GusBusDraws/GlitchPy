@@ -20,7 +20,7 @@ File structure of the project is as follows:
 ## Change Log
 ### v0.0.2
 2024/01/19
-- Add `utils.get_palette_df`
+- Add `utils.get_palette` and `utils.get_palette_df`
 - Add `glitch.reduce_color_by_rounding`
 
 2024/01/19
