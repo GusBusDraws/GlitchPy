@@ -21,7 +21,7 @@ File structure of the project is as follows:
 ### v0.0.2
 2024/01/19
 - Add `utils.get_palette`, `utils.get_palette_df`, and `view.palette`
-- Add `glitch.reduce_color_by_rounding`
+- Add `utils.reduce_color_by_rounding`
 
 2024/01/19
 - Add `glitch.split_hues_by_percentile` and `glitch.split_classes`

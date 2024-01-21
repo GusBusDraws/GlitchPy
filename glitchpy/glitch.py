@@ -272,8 +272,4 @@ def split_classes(img_semantic, nclasses):
         masks_unique.append(mask)
     return masks_unique
 
-def reduce_color_by_rounding(img, scale=5):
-    img_reduced = np.round(img / scale).astype(int) * scale
-    return img_reduced
-
 

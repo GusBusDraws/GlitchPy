@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from skimage import color, filters, exposure, util
 # Local imports
-import glitch
+# import glitch
 
 def get_colors_by_count(img, ncolors='all'):
     if ncolors != 'all' and isinstance(ncolors, int):
@@ -64,7 +64,7 @@ def get_palette_df(img, ncolors, color_downscale=10):
         masks_unique.append(mask)
     if color_downscale is not None:
         # Reduce colors in base image by rounding
-        img = glitch.reduce_color_by_rounding(img, color_downscale)
+        img = reduce_color_by_rounding(img, color_downscale)
     # Create dataframe to hold palette info
     df = pd.DataFrame(
         columns=['mask_i', 'red', 'green', 'blue', 'counts', 'grey_dist'])
@@ -137,6 +137,10 @@ def isolate_classes(
                 img_semantic[img > val] = int((start + i) * intensity_step)
                 i += 1
     return img_semantic
+
+def reduce_color_by_rounding(img, scale=5):
+    img_reduced = np.round(img / scale).astype(int) * scale
+    return img_reduced
 
 def save_images(
     imgs,
