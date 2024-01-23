@@ -20,7 +20,8 @@ File structure of the project is as follows:
 ## Change Log
 ### v0.0.2
 2024/01/23
-- Add utils.split_semantic
+- Add `utils.get_df_from_masks`
+- Add `utils.split_semantic`
 
 2024/01/20
 - Rename `utils.get_palette` to `utils.get_palette_from_df`

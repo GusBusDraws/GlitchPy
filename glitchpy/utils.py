@@ -30,6 +30,32 @@ def get_colors_by_count(img, ncolors='all'):
     else:
         return colors_by_count[:ncolors]
 
+def get_df_from_masks(img, masks, color_downscale=10):
+    if color_downscale is not None:
+        # Reduce colors in base image by rounding
+        img = reduce_color_by_rounding(img, color_downscale)
+    # Create dataframe to hold palette info
+    df = pd.DataFrame(
+        columns=['mask_i', 'red', 'green', 'blue', 'counts', 'grey_dist'])
+    # Add common colors within each masked region
+    for mask_i, mask in enumerate(masks):
+        # Count colors in masked image
+        colors_by_count = get_colors_by_count(img[mask])
+        common_colors, counts = zip(*colors_by_count)
+        common_colors = np.array(common_colors)
+        # Add colors to dataframe
+        df_i = pd.DataFrame(
+            data=common_colors, columns=['red', 'green', 'blue'])
+        df_i['mask_i'] = [mask_i] * len(counts)
+        df_i['counts'] = counts
+        df_i['grey_dist'] = (
+            abs(df_i.red - df_i.green)
+            + abs(df_i.green - df_i.blue)
+            + abs(df_i.blue - df_i.red)
+        )
+        df = pd.concat([df, df_i])
+    return df
+
 def get_palette_from_df(df, min_grey_dist=100):
 # def get_palette(df, ncolors, color_downscale=10, min_grey_dist=100):
     # df = get_palette_df(img, ncolors, color_downscale=color_downscale)
