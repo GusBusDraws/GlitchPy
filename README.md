@@ -20,6 +20,7 @@ File structure of the project is as follows:
 ## Change Log
 ### v0.0.2
 2024/01/20
+- Rename `utils.get_palette` to `utils.get_palette_from_df`
 - Add cmap kwarg to `view.image` and `view.images`
 
 2024/01/19

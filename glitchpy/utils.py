@@ -30,8 +30,9 @@ def get_colors_by_count(img, ncolors='all'):
     else:
         return colors_by_count[:ncolors]
 
-def get_palette(img, ncolors, color_downscale=10, min_grey_dist=100):
-    df = get_palette_df(img, ncolors, color_downscale=color_downscale)
+def get_palette_from_df(df, min_grey_dist=100):
+# def get_palette(df, ncolors, color_downscale=10, min_grey_dist=100):
+    # df = get_palette_df(img, ncolors, color_downscale=color_downscale)
     # Get the most common color within each mask
     nmasks = df.mask_i.max() + 1
     palette = []
@@ -43,7 +44,8 @@ def get_palette(img, ncolors, color_downscale=10, min_grey_dist=100):
         palette.append(most_common_color)
     return palette
 
-def get_palette_df(img, ncolors, color_downscale=10):
+def get_palette_df(
+        img, ncolors, color_downscale=10, also_return_percentile_masks=False):
     # Get hue image
     img_hsv = color.rgb2hsv(img)
     img_hue = img_hsv.copy()
@@ -58,10 +60,10 @@ def get_palette_df(img, ncolors, color_downscale=10):
     # Segment image according to percentile threshold values
     img_semantic = isolate_classes(
         img_hue_hsv[..., 0], threshold_values=thresholds)
-    masks_unique = []
+    percentile_masks = []
     for i in range(ncolors):
         mask = img_semantic == i
-        masks_unique.append(mask)
+        percentile_masks.append(mask)
     if color_downscale is not None:
         # Reduce colors in base image by rounding
         img = reduce_color_by_rounding(img, color_downscale)
@@ -69,7 +71,7 @@ def get_palette_df(img, ncolors, color_downscale=10):
     df = pd.DataFrame(
         columns=['mask_i', 'red', 'green', 'blue', 'counts', 'grey_dist'])
     # Add common colors within each masked region
-    for mask_i, mask in enumerate(masks_unique):
+    for mask_i, mask in enumerate(percentile_masks):
         # Count colors in masked image
         colors_by_count = get_colors_by_count(img[mask])
         common_colors, counts = zip(*colors_by_count)
@@ -84,7 +86,10 @@ def get_palette_df(img, ncolors, color_downscale=10):
             + abs(df_i.blue - df_i.red)
         )
         df = pd.concat([df, df_i])
-    return df
+    if not also_return_percentile_masks:
+        return df
+    else:
+        return df, percentile_masks
 
 def isolate_classes(
     img,
