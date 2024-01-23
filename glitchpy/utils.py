@@ -199,6 +199,14 @@ def save_images(
         iio.imwrite(Path(save_dir / f'{img_name}.{file_suffix}'), img)
     print(f'{len(imgs)} image(s) saved to: {save_dir.resolve()}')
 
+def split_semantic(img_semantic):
+    nmasks = img_semantic.max() + 1
+    masks = []
+    for mask_i in range(nmasks):
+        mask = img_semantic == mask_i
+        masks.append(mask)
+    return masks
+
 def threshold_multi_otsu(
     imgs,
     nclasses=2,
