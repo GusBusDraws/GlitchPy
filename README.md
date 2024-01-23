@@ -19,6 +19,9 @@ File structure of the project is as follows:
 
 ## Change Log
 ### v0.0.2
+2024/01/20
+- Add cmap kwarg to `view.image` and `view.images`
+
 2024/01/19
 - Add `utils.get_palette`, `utils.get_palette_df`, and `view.palette`
 - Add `utils.reduce_color_by_rounding`

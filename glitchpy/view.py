@@ -5,6 +5,7 @@ import string
 
 def image(
     img,
+    cmap='default',
     **kwargs,
 ):
     nrows = 1
@@ -12,7 +13,10 @@ def image(
     fig, axes = plt.subplots(nrows, ncols, constrained_layout=True, **kwargs)
     if ncols == 1:
         axes = [axes]
-    axes[0].imshow(img, interpolation='nearest')
+    if cmap == 'default':
+        axes[0].imshow(img, interpolation='nearest')
+    else:
+        axes[0].imshow(img, cmap=cmap, interpolation='nearest')
     axes[0].set_axis_off()
     return fig, axes
 
@@ -21,6 +25,7 @@ def images(
     vmin=None,
     vmax=None,
     imgs_per_row=None,
+    cmap='default',
     fig_w=7.5,
     subplot_letters=False,
     **kwargs
@@ -80,7 +85,13 @@ def images(
         # When only one image, wrap axis object into list to make iterable
         ax = [axes]
     for i, img in enumerate(imgs):
-        ax[i].imshow(img, vmin=vmin[i], vmax=vmax[i], interpolation='nearest')
+        if cmap == 'default':
+            ax[i].imshow(
+                img, vmin=vmin[i], vmax=vmax[i], interpolation='nearest')
+        else:
+            ax[i].imshow(
+                img, vmin=vmin[i], vmax=vmax[i], cmap=cmap,
+                interpolation='nearest')
         if subplot_letters:
             letter = string.ascii_lowercase[i]
             ax[i].annotate(
