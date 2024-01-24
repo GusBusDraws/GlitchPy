@@ -252,6 +252,62 @@ def posterize_otsu(img, type='binary'):
     print(img_post.shape)
     return img_post
 
+def rock_paper_scissors(
+        grid, rock=1, paper=2, scissors=3, regen_chance=False, mask=None):
+    if mask is None:
+        mask = np.ones_like(grid)
+    else:
+        mask = mask.astype(int)
+    # copy grid since we require 8 neighbors
+    # for calculation and we go line by line
+    new_grid = grid.copy()
+    nrows, ncols = grid.shape
+    for i in range(nrows):
+        for j in range(ncols):
+            if mask[i, j] == 1:
+                # Mask array
+                masked = new_grid.copy() * mask
+                # Create subgrid from masked array
+                subgrid = np.zeros((3, 3), dtype=grid.dtype)
+                subgrid[0, 0] = masked[(i-1) % nrows, (j-1) % ncols]
+                subgrid[0, 1] = masked[(i-1) % nrows, j]
+                subgrid[0, 2] = masked[(i-1) % nrows, (j+1) % ncols]
+                subgrid[1, 0] = masked[i, (j-1) % ncols]
+                # subgrid[1, 1] = masked[i, j]
+                subgrid[1, 2] = masked[i, (j+1) % ncols]
+                subgrid[2, 0] = masked[(i+1) % nrows, (j-1) % ncols]
+                subgrid[2, 1] = masked[(i+1) % nrows, j]
+                subgrid[2, 2] = masked[(i+1) % nrows, (j+1) % ncols]
+                n_rock = len(np.argwhere(subgrid == rock))
+                n_paper = len(np.argwhere(subgrid == paper))
+                n_scissors = len(np.argwhere(subgrid == scissors))
+                # Update pixel based on neighbors
+                if grid[i, j] == rock:
+                    if n_paper + np.random.randint(-2, 3) > 3:
+                        new_grid[i, j] = paper
+                    elif n_rock == 8 and regen_chance > 0:
+                        new_grid[i, j] = np.random.choice(
+                            [rock, paper], p=[1-regen_chance, regen_chance])
+                    else:
+                        new_grid[i, j] = rock
+                elif grid[i, j] == paper:
+                    if n_scissors + np.random.randint(-2, 3)  > 3:
+                        new_grid[i, j] = scissors
+                    elif n_paper == 8 and regen_chance > 0:
+                        new_grid[i, j] = np.random.choice(
+                            [paper, scissors], p=[1-regen_chance, regen_chance])
+                    else:
+                        new_grid[i, j] = paper
+                elif grid[i, j] == scissors:
+                    if n_rock + np.random.randint(-2, 3) > 3:
+                        new_grid[i, j] = rock
+                    elif n_scissors == 8 and regen_chance > 0:
+                        new_grid[i, j] = np.random.choice(
+                            [scissors, rock], p=[1-regen_chance, regen_chance])
+                    else:
+                        new_grid[i, j] = scissors
+    return new_grid
+
 def split_hues_by_percentile(img, ncolors):
     img_hsv = color.rgb2hsv(img)
     img_hue = img_hsv.copy()

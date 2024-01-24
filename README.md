@@ -20,6 +20,7 @@ File structure of the project is as follows:
 ## Change Log
 ### v0.0.2
 2024/01/23
+- Add `glitch.rock_paper_scissors`
 - Add `utils.get_df_from_masks`
 - Add `utils.split_semantic`
 
